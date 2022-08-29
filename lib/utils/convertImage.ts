@@ -19,7 +19,7 @@ export const svgToPng = async (svgString: string) => {
       defaultFontFamily: 'Roboto Mono',
       loadSystemFonts: false,
     },
-    dpi: 1000,
+    dpi: 2000,
   })
   return resvg.render().asPng()
 }
