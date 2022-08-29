@@ -5,10 +5,6 @@ module.exports = {
         source: '/',
         destination: '/api',
       },
-      {
-        source: '/img.svg',
-        destination: '/api',
-      },
     ]
   },
 }
