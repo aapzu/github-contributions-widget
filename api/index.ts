@@ -1,68 +1,58 @@
-import { VercelApiHandler } from '@vercel/node'
+import {
+  VercelApiHandler,
+  VercelRequestQuery,
+  VercelResponse,
+} from '@vercel/node'
 import axios from 'axios'
-import contributionsToImage from '../lib/contributionsToImage'
+import contributionsToImage, {
+  supportedImageFormats,
+} from '../lib/contributionsToImage'
+import { getContributions } from '../lib/data/contributions'
 import { ContributionsResponse } from '../lib/types'
+import ApiError from '../lib/utils/ApiError'
 
-const token = process.env.GITHUB_PERSONAL_ACCESS_TOKEN
-
-async function getContributions(token, username) {
-  const body = {
-    query: `
-      query {
-        user(login: "${username}") {
-          name
-          contributionsCollection {
-            contributionCalendar {
-              totalContributions
-              weeks {
-                contributionDays {
-                  color
-                  contributionCount
-                  date
-                  weekday
-                }
-                firstDay
-              }
-            }
-          }
-        }
-      }
-    `,
+const getUsername = (query: VercelRequestQuery) => {
+  const { username } = query
+  if (!username) {
+    throw new ApiError('Query parameter "username" is required', 400)
   }
-  const { data } = await axios.post<ContributionsResponse>(
-    'https://api.github.com/graphql',
-    body,
-    {
-      headers: {
-        Authorization: `bearer ${token}`,
-      },
-    },
-  )
-  return data
+  if (Array.isArray(username)) {
+    throw new ApiError('Multiple username are not yet supported', 400)
+  }
+  return username
+}
+
+const getImageFormat = (query: VercelRequestQuery) => {
+  const { imageFormat = 'svg' } = query
+  if (Array.isArray(imageFormat)) {
+    throw new ApiError('Only one imageFormat is supported', 400)
+  }
+  if (!(imageFormat in supportedImageFormats)) {
+    throw new ApiError(
+      `imageFormat ${imageFormat} not supported, supported formats: ${Object.keys(
+        supportedImageFormats,
+      ).join(', ')}`,
+      400,
+    )
+  }
+  return imageFormat as keyof typeof supportedImageFormats
 }
 
 const handler: VercelApiHandler = async (req, res) => {
-  const { username } = req.query
-  if (!username) {
-    return res.status(400).json({
-      error: 'Query parameter "username" is required',
-      data: null,
-    })
-  }
-  if (Array.isArray(username)) {
-    return res.status(400).json({
-      error: 'Multiple username are not yet supported',
-      data: null,
-    })
-  }
   try {
-    const data = await getContributions(token, username)
-    const imageBuffer = await contributionsToImage(data)
-    res.setHeader('Content-type', 'image/svg')
+    const username = getUsername(req.query)
+    const imageFormat = getImageFormat(req.query)
+    const data = await getContributions(username)
+    const imageBuffer = await contributionsToImage(data, imageFormat)
+    res.setHeader('Content-type', supportedImageFormats[imageFormat])
     res.send(imageBuffer)
   } catch (e) {
+    if (e instanceof ApiError) {
+      res.status(e.status).send(e.message)
+    } else {
+      res.status(500).send('Something went wrong')
+    }
     console.error(e)
-    res.status(500).send(e)
   }
 }
 
