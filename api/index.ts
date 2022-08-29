@@ -48,7 +48,7 @@ const handler: VercelApiHandler = async (req, res) => {
     res.setHeader('Cache-Control', 'max-age=0, s-maxage=86400')
     res.send(imageBuffer)
   } catch (e) {
-    if (e instanceof ApiError) {
+    if ('status' in e) {
       res.status(e.status).send(e.message)
     } else {
       res.status(500).send('Something went wrong')
