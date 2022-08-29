@@ -3,7 +3,7 @@ import axios from 'axios'
 import contributionsToImage from '../lib/contributionsToImage'
 import { ContributionsResponse } from '../lib/types'
 
-const token = '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'
+const token = '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'
 
 async function getContributions(token, username) {
   const body = {
