@@ -45,6 +45,7 @@ const handler: VercelApiHandler = async (req, res) => {
     const data = await getContributions(username)
     const imageBuffer = await contributionsToImage(data, imageFormat)
     res.setHeader('Content-type', supportedImageFormats[imageFormat])
+    res.setHeader('Cache-Control', 'max-age=0, s-maxage=86400')
     res.send(imageBuffer)
   } catch (e) {
     if (e instanceof ApiError) {
