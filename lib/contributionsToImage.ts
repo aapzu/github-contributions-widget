@@ -1,8 +1,14 @@
 import path from 'path'
-import { optimize } from 'svgo'
 import ejs from 'ejs'
 import { ContributionsResponse } from './types'
 import tinygradient from 'tinygradient'
+import ApiError from './utils/ApiError'
+import { optimizeSvg, svgToPng } from './utils/convertImage'
+
+export const supportedImageFormats = {
+  svg: 'image/svg',
+  png: 'image/png',
+} as const
 
 const svgTemplatePath = path.resolve(
   __dirname,
@@ -16,16 +22,10 @@ const colorGetter = (maxNum: number) => {
   return (num: number) => gradient[num]
 }
 
-export const optimizeSvg = async (svgString: string) => {
-  const optimizeResult = await optimize(svgString)
-  if ('data' in optimizeResult) {
-    return optimizeResult.data
-  } else {
-    throw optimizeResult.modernError
-  }
-}
-
-const contributionsToImage = async (contributions: ContributionsResponse) => {
+const contributionsToImage = async (
+  contributions: ContributionsResponse,
+  imageFormat: keyof typeof supportedImageFormats,
+) => {
   const flattenedContributions =
     contributions.data.user.contributionsCollection.contributionCalendar.weeks.flatMap(
       (week) => week.contributionDays,
@@ -39,12 +39,20 @@ const contributionsToImage = async (contributions: ContributionsResponse) => {
       contributions: flattenedContributions,
       width: 1020,
       getColor: colorGetter(maxContributions),
+      name: contributions.data.user.name,
+      fontColor: '#ED254E',
+      font: 'Roboto Mono',
     },
     {},
   )
-  // const optimizedSvg = await optimizeSvg(svgString)
-  const optimizedSvg = svgString
-  return Buffer.from(optimizedSvg, 'utf-8')
+  const optimizedSvg = await optimizeSvg(svgString)
+  if (imageFormat === 'png') {
+    return svgToPng(optimizedSvg)
+  } else if (imageFormat === 'svg') {
+    return Buffer.from(optimizedSvg, 'utf-8')
+  } else {
+    throw new ApiError(`Invalid image format: ${imageFormat}`, 400)
+  }
 }
 
 export default contributionsToImage
