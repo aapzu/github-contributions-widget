@@ -3,7 +3,7 @@ import axios from 'axios'
 import contributionsToImage from '../lib/contributionsToImage'
 import { ContributionsResponse } from '../lib/types'
 
-const token = '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'
+const token = process.env.GITHUB_PERSONAL_ACCESS_TOKEN
 
 async function getContributions(token, username) {
   const body = {
