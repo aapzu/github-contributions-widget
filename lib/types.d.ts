@@ -2,6 +2,7 @@ export type ContributionsResponse = {
   data: {
     user: {
       name: string
+      login: string
       contributionsCollection: {
         contributionCalendar: {
           totalContributions: number
@@ -18,4 +19,10 @@ export type ContributionsResponse = {
       }
     }
   }
+}
+
+export type ContributionsErrorResponse = {
+  errors: Array<{
+    message: string
+  }>
 }

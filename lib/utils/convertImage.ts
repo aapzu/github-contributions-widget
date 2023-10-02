@@ -4,18 +4,13 @@ import path from 'path'
 
 export const optimizeSvg = async (svgString: string) => {
   const optimizeResult = await optimize(svgString)
-  if ('data' in optimizeResult) {
-    return optimizeResult.data
-  } else {
-    throw optimizeResult.modernError
-  }
+  return optimizeResult.data
 }
 
 export const svgToPng = async (svgString: string) => {
-  const optimizedSvg = await optimizeSvg(svgString)
-  const resvg = new Resvg(optimizedSvg, {
+  const resvg = new Resvg(svgString, {
     font: {
-      fontDirs: [path.resolve(__dirname, '../../public/fonts')],
+      fontDirs: [path.resolve(process.cwd(), './public/fonts')],
       defaultFontFamily: 'Roboto Mono',
       loadSystemFonts: false,
     },
