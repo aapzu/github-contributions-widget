@@ -1,10 +1,6 @@
+/** @type {import('next').NextConfig} */
 module.exports = {
-  async rewrites() {
-    return [
-      {
-        source: '/',
-        destination: '/api',
-      },
-    ]
+  experimental: {
+    serverComponentsExternalPackages: ['@resvg/resvg-js', 'jsdom'],
   },
 }

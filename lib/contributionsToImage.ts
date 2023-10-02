@@ -11,8 +11,8 @@ export const supportedImageFormats = {
 } as const
 
 const svgTemplatePath = path.resolve(
-  __dirname,
-  '../templates/contributions.ejs',
+  process.cwd(),
+  './templates/contributions.ejs',
 )
 
 const colorGetter = (maxNum: number) => {
@@ -24,8 +24,8 @@ const colorGetter = (maxNum: number) => {
 
 const contributionsToImage = async (
   contributions: ContributionsResponse,
-  imageFormat: keyof typeof supportedImageFormats,
-) => {
+  imageFormat: string,
+): Promise<Buffer> => {
   const flattenedContributions =
     contributions.data.user.contributionsCollection.contributionCalendar.weeks.flatMap(
       (week) => week.contributionDays,
@@ -39,19 +39,21 @@ const contributionsToImage = async (
       contributions: flattenedContributions,
       width: 1020,
       getColor: colorGetter(maxContributions),
-      name: contributions.data.user.name,
+      name: contributions.data.user.name ?? contributions.data.user.login,
       fontColor: '#ED254E',
       font: 'Roboto Mono',
     },
     {},
   )
   const optimizedSvg = await optimizeSvg(svgString)
-  if (imageFormat === 'png') {
-    return svgToPng(optimizedSvg)
-  } else if (imageFormat === 'svg') {
-    return Buffer.from(optimizedSvg, 'utf-8')
-  } else {
-    throw new ApiError(`Invalid image format: ${imageFormat}`, 400)
+  switch (imageFormat) {
+    case 'png':
+    case 'jpeg':
+      return svgToPng(optimizedSvg)
+    case 'svg':
+      return Buffer.from(optimizedSvg, 'utf-8')
+    default:
+      throw new ApiError(`Invalid image format: ${imageFormat}`, 400)
   }
 }
 
