@@ -19,7 +19,7 @@ function assertSupportedImageFormat(
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { imageNameWithUsername: string } },
 ) {
   const [username, imageFormat] = params.imageNameWithUsername.split('.')

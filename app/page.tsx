@@ -1,23 +1,16 @@
-'use client'
+import { FC } from 'react'
+import ContributionsImg from '../components/ContributionsImg'
 
-import { NextPage } from 'next'
-import { useSearchParams } from 'next/navigation'
-
-const IndexPage: NextPage = () => {
-  const searchParams = useSearchParams()
-  const username = searchParams.get('username') ?? undefined
-
-  const imgUrl = username ? `/${username}.png` : undefined
+const IndexPage: FC<{ searchParams: { username?: string } }> = ({
+  searchParams: { username },
+}) => {
+  if (Array.isArray(username)) {
+    throw new Error('Expected a single username')
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen dark:bg-gray-800">
-      {username && (
-        <img
-          src={imgUrl}
-          alt={`${username}'s GitHub contributions`}
-          className="mb-4 rounded-md shadow-md dark:shadow-none"
-        />
-      )}
+      {username && <ContributionsImg username={username} />}
       <form action="/" method="GET" className="dark:bg-gray-800">
         <input
           type="text"
