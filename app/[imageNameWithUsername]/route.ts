@@ -18,18 +18,30 @@ function assertSupportedImageFormat(
   }
 }
 
+function checkColorTheme(colorTheme: string): asserts colorTheme is 'aapzu' {
+  if (!(['aapzu', 'original'] as const).includes(colorTheme as never)) {
+    throw new ApiError(
+      `colorTheme ${colorTheme} not supported, supported themes: aapzu, original`,
+      400,
+    )
+  }
+}
+
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { imageNameWithUsername: string } },
 ) {
+  const searchParams = request.nextUrl.searchParams
+  const colorTheme = searchParams.get('colorTheme') ?? 'aapzu'
   const [username, imageFormat] = params.imageNameWithUsername.split('.')
   try {
+    checkColorTheme(colorTheme)
     assertSupportedImageFormat(imageFormat)
     const res = await getContributions(username)
     if ('errors' in res) {
       throw new ApiError(res.errors[0].message, 400)
     }
-    const imageBuffer = await contributionsToImage(res, imageFormat)
+    const imageBuffer = await contributionsToImage(res, imageFormat, colorTheme)
     return new Response(imageBuffer, {
       headers: {
         'Content-type': supportedImageFormats[imageFormat],
