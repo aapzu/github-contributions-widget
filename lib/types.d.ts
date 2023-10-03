@@ -26,3 +26,5 @@ export type ContributionsErrorResponse = {
     message: string
   }>
 }
+
+export type ColorTheme = 'original' | 'aapzu'

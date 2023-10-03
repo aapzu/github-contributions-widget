@@ -1,9 +1,12 @@
 import path from 'path'
 import ejs from 'ejs'
-import { ContributionsResponse } from './types'
+import { ColorTheme, ContributionsResponse } from './types'
 import tinygradient from 'tinygradient'
 import ApiError from './utils/ApiError'
 import { optimizeSvg, svgToPng } from './utils/convertImage'
+
+type ContributionItem =
+  ContributionsResponse['data']['user']['contributionsCollection']['contributionCalendar']['weeks'][0]['contributionDays'][0]
 
 export const supportedImageFormats = {
   svg: 'image/svg',
@@ -19,12 +22,14 @@ const colorGetter = (maxNum: number) => {
   const gradient = tinygradient(['#001d3d', '#0069CC'])
     .rgb(maxNum + 1)
     .map((c) => c.toString())
-  return (num: number) => gradient[num]
+  return (contribution: ContributionItem) =>
+    gradient[contribution.contributionCount]
 }
 
 const contributionsToImage = async (
   contributions: ContributionsResponse,
   imageFormat: string,
+  colorTheme: ColorTheme = 'aapzu',
 ): Promise<Buffer> => {
   const flattenedContributions =
     contributions.data.user.contributionsCollection.contributionCalendar.weeks.flatMap(
@@ -38,7 +43,10 @@ const contributionsToImage = async (
     {
       contributions: flattenedContributions,
       width: 1020,
-      getColor: colorGetter(maxContributions),
+      getColor:
+        colorTheme === 'aapzu'
+          ? colorGetter(maxContributions)
+          : (item: ContributionItem) => item.color,
       name: contributions.data.user.name ?? contributions.data.user.login,
       fontColor: '#ED254E',
       font: 'Roboto Mono',

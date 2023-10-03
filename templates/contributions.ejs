@@ -1,6 +1,6 @@
 <svg width="<%= width %>" viewBox="0 0 1020 140" fill="none" xmlns="http://www.w3.org/2000/svg">
     <% contributions.slice(-357).forEach((contribution, i) => { %>
-        <rect width='20' height='20' fill='<%= getColor(contribution.contributionCount) %>' x='<%= Math.floor(i / 7) * 20 %>' y='<%= (i % 7) * 20 %>'>
+        <rect width='20' height='20' fill='<%= getColor(contribution) %>' x='<%= Math.floor(i / 7) * 20 %>' y='<%= (i % 7) * 20 %>'>
             <text><%= contribution.date %></text>
         </rect>
     <% }) %>

@@ -19,6 +19,7 @@ const IndexPage: FC<{ searchParams: { username?: string } }> = ({
           placeholder="Enter GitHub username"
           className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
         />
+        q{' '}
         <button
           type="submit"
           className="px-4 py-2 ml-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:bg-blue-700 dark:hover:bg-blue-800"
