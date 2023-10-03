@@ -2,7 +2,7 @@
 
 Generates beautiful banner images using the user's Github contributions as the background
 
-![Example image](https://github-contributions-widget.vercel.app/aapzu.png)
+[![Example image](https://github-contributions-widget.vercel.app/aapzu.png)](https://github-contributions-widget.vercel.app/aapzu.png)
 
 ## Development
 
